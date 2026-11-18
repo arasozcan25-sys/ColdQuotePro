@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#e6f6fb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ColdQuote">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>ColdQuote Pro — Soğuk Oda Teklif Hazırlama Aracı</title>
+<style>
+  :root{
+    --bg:#eef4f8;
+    --card:#ffffff;
+    --border:#dbe7f0;
+    --border-soft:#e9f1f6;
+    --text:#1e2a38;
+    --text-muted:#5b7186;
+    --primary:#0e7490;
+    --primary-dark:#0b5566;
+    --primary-light:#e0f7fa;
+    --accent:#2563eb;
+    --success:#0f9d6b;
+    --success-bg:#e7f8f1;
+    --danger:#dc2626;
+    --danger-bg:#fdecec;
+    --warning:#b45309;
+    --warning-bg:#fef3e2;
+    --radius:10px;
+    --shadow: 0 1px 3px rgba(15,42,56,.08), 0 2px 8px rgba(15,42,56,.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  header.app-header{
+    background:linear-gradient(135deg,#e0f7fa 0%, #eef9fb 45%, #f5fbfd 100%);
+    border-bottom:1px solid var(--border);
+    padding:22px 28px 0 28px;
+  }
+  .header-top{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    max-width:1200px; margin:0 auto;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .snow{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(135deg,var(--primary),#22b8cf);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px; box-shadow:var(--shadow);
+  }
+  .brand h1{font-size:20px;margin:0;color:var(--primary-dark);letter-spacing:.2px;}
+  .brand p{margin:2px 0 0 0;font-size:12.5px;color:var(--text-muted);}
+  nav.tabs{
+    max-width:1200px;margin:16px auto 0 auto;display:flex;gap:6px;
+  }
+  .tab-btn{
+    border:1px solid transparent;background:transparent;color:var(--text-muted);
+    padding:10px 16px;border-radius:10px 10px 0 0;font-size:14px;font-weight:600;cursor:pointer;
+    display:flex;align-items:center;gap:7px;transition:.15s;
+  }
+  .tab-btn:hover{color:var(--primary-dark);background:rgba(255,255,255,.5);}
+  .tab-btn.active{
+    background:var(--card);border-color:var(--border);border-bottom-color:var(--card);
+    color:var(--primary-dark);
+    box-shadow:0 -2px 6px rgba(15,42,56,.04);
+  }
+  main{max-width:1200px;margin:0 auto;padding:24px 28px 60px 28px;}
+  .tab-section{display:none;}
+  .tab-section.active{display:block;}
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow);
+  }
+  .card h2{margin:0 0 4px 0;font-size:15.5px;color:var(--primary-dark);display:flex;align-items:center;gap:8px;}
+  .card .card-sub{margin:0 0 16px 0;font-size:12.5px;color:var(--text-muted);}
+  .grid{display:grid;gap:14px;}
+  .grid.cols-2{grid-template-columns:repeat(2,1fr);}
+  .grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .grid.cols-5{grid-template-columns:repeat(5,1fr);}
+  @media (max-width:820px){ .grid.cols-2,.grid.cols-3,.grid.cols-5{grid-template-columns:1fr 1fr;} }
+  @media (max-width:560px){ .grid.cols-2,.grid.cols-3,.grid.cols-5{grid-template-columns:1fr;} }
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:5px;}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;
+    font-size:14px;background:#fbfdfe;color:var(--text);font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary);}
+  textarea{resize:vertical;min-height:56px;}
+  .field{margin-bottom:2px;}
+  .rate-card{
+    border:1px solid var(--border-soft);background:#fbfdfe;border-radius:9px;padding:12px 14px;
+  }
+  .rate-card .rate-title{font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:10px;}
+  .rate-card .rate-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .rate-card .rate-row label{font-size:11px;}
+  .btn{
+    border:none;border-radius:8px;padding:10px 16px;font-size:13.5px;font-weight:600;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:.15s;
+  }
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);}
+  .btn-accent{background:var(--accent);color:#fff;}
+  .btn-accent:hover{background:#1d4ed8;}
+  .btn-ghost{background:#fff;color:var(--text);border:1px solid var(--border);}
+  .btn-ghost:hover{background:#f4f8fa;}
+  .btn-danger{background:var(--danger-bg);color:var(--danger);}
+  .btn-danger:hover{background:#fbd6d6;}
+  .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:7px;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{
+    text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;
+    color:var(--text-muted);border-bottom:2px solid var(--border);padding:8px 8px;background:#f8fbfc;
+  }
+  tbody td{padding:9px 8px;border-bottom:1px solid var(--border-soft);}
+  tbody tr:hover{background:#f8fcfd;}
+  tbody tr:last-child td{border-bottom:none;}
+  .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .tag{
+    display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;
+    background:var(--primary-light);color:var(--primary-dark);
+  }
+  .empty-row td{color:var(--text-muted);text-align:center;padding:20px;font-style:italic;}
+  .add-form{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px;}
+  .add-form .field{flex:1;min-width:130px;}
+  .add-form .field.small{flex:0 0 110px;min-width:100px;}
+  .summary{max-width:440px;margin-left:auto;}
+  .summary-row{display:flex;justify-content:space-between;padding:7px 0;font-size:13.5px;color:var(--text-muted);border-bottom:1px dashed var(--border);}
+  .summary-row span:last-child{font-variant-numeric:tabular-nums;color:var(--text);font-weight:600;}
+  .summary-row.total{border-top:2px solid var(--primary);border-bottom:none;margin-top:6px;padding-top:12px;}
+  .summary-row.total span{font-size:19px;font-weight:800;color:var(--primary-dark);}
+  .actions-bar{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:6px;}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--primary-dark);color:#fff;padding:12px 20px;border-radius:9px;font-size:13.5px;
+    box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .note{background:var(--warning-bg);color:var(--warning);border:1px solid #f3dcb3;border-radius:8px;padding:10px 12px;font-size:12.5px;margin-bottom:14px;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;}
+  .checkbox-row input{width:auto;}
+  .print-only{display:none;}
+  .customer-summary{display:none;}
+  .settings-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:10px;}
+  .col-actions{width:44px;}
+  .tier-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px;}
+  .tier-row .field{flex:1;margin-bottom:0;}
+  /* ══ TELEFON DÜZENİ (iPhone / ana ekran uygulaması) ══ */
+  html{-webkit-text-size-adjust:100%;}
+  body{-webkit-tap-highlight-color:transparent;}
+  header.app-header{padding-top:env(safe-area-inset-top);}
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .backup-row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px;}
+  @media (max-width:600px){
+    .header-top{padding-top:10px !important;padding-bottom:8px !important;}
+    .brand p{display:none;}
+    .brand h1{font-size:18px;}
+    .brand .snow{width:36px !important;height:36px !important;font-size:18px !important;}
+    nav.tabs{gap:4px !important;}
+    .tab-btn{font-size:12.5px !important;padding:8px 8px !important;line-height:1.2;flex:1 1 0;}
+    main{padding:12px 10px calc(40px + env(safe-area-inset-bottom)) 10px;}
+    .card{padding:14px 12px !important;}
+    input[type=text],input[type=number],input[type=date],select,textarea{font-size:16px;}
+    table{font-size:12.5px;}
+    #tab-kayitlar th:nth-child(5),#tab-kayitlar td:nth-child(5){display:none;}
+  }
+  @media print{
+    body{background:#fff;}
+    header.app-header, nav.tabs, .no-print{display:none !important;}
+    main{padding:0;max-width:100%;}
+    .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;}
+    .print-only{display:block;}
+    body.print-customer .customer-summary{display:block !important;}
+    body.print-customer #internalSummaryCard{display:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-top">
+    <div class="brand">
+      <div class="snow">❄️</div>
+      <div>
+        <h1>ColdQuote Pro</h1>
+        <p>Soğuk Oda Montaj &amp; Servis Teklif Hazırlama Aracı</p>
+      </div>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="teklif" onclick="switchTab('teklif')">📋 Teklif Oluştur</button>
+    <button class="tab-btn" data-tab="ayarlar" onclick="switchTab('ayarlar')">⚙️ Ayarlar (Birim Fiyatlar)</button>
+    <button class="tab-btn" data-tab="kayitlar" onclick="switchTab('kayitlar')">🗂️ Kayıtlı Teklifler</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ============ TEKLİF OLUŞTUR ============ -->
+  <section id="tab-teklif" class="tab-section active">
+
+    <div class="print-only" style="margin-bottom:18px;">
+      <h1 style="margin:0;color:#0b5566;">ColdQuote Pro — Teklif</h1>
+      <table style="margin-top:8px;font-size:13px;">
+        <tr><td style="padding:2px 8px 2px 0;color:#5b7186;">Proje:</td><td id="printProjeAdi" style="font-weight:700;"></td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5b7186;">Müşteri:</td><td id="printMusteri"></td></tr>
+        <tr><td style="padding:2px 8px 2px 0;color:#5b7186;">Tarih:</td><td id="printTarih"></td></tr>
+      </table>
+      <p id="printNot" style="font-size:12.5px;color:#5b7186;"></p>
+    </div>
+
+    <div class="card no-print">
+      <h2>📁 Proje Bilgileri</h2>
+      <p class="card-sub">Teklifi kaydetmek için proje adı zorunludur.</p>
+      <div class="grid cols-3">
+        <div class="field"><label>Proje Adı *</label><input type="text" id="projeAdi" placeholder="Örn: Fatih Servet Soğuk Oda Projesi"></div>
+        <div class="field"><label>Müşteri Adı</label><input type="text" id="musteriAdi" placeholder="Örn: ABC Gıda Ltd. Şti."></div>
+        <div class="field"><label>Tarih</label><input type="date" id="tarih"></div>
+      </div>
+      <div class="field" style="margin-top:12px;"><label>Not</label><textarea id="projeNot" placeholder="Teklife dair ek not (opsiyonel)"></textarea></div>
+    </div>
+
+    <div class="card no-print">
+      <h2>🔧 İşçilik Kalemi Ekle</h2>
+      <p class="card-sub">Panel montajı m² bazlı kademeli fiyatla, kapı montajı sabit adet fiyatıyla, diğerleri saat × ücret × ekip katsayısıyla hesaplanır (Ayarlar sayfasından yönetilir).</p>
+      <div class="add-form">
+        <div class="field">
+          <label>Kategori</label>
+          <select id="itemCategory" onchange="onCategoryChange()"></select>
+        </div>
+        <div class="field" id="itemSubWrap">
+          <label>Tip</label>
+          <select id="itemSub"></select>
+        </div>
+        <div class="field" id="itemZeminWrap" style="display:none;">
+          <label>Zemin Paneli</label>
+          <select id="itemZemin">
+            <option value="Yok">Yok</option>
+            <option value="Var">Var</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Açıklama (opsiyonel)</label>
+          <input type="text" id="itemAciklama" placeholder="Örn: A bölmesi duvar paneli">
+        </div>
+        <div class="field small">
+          <label>Miktar (<span id="itemUnitLabel">m²</span>)</label>
+          <input type="number" id="itemMiktar" min="0" step="0.01" placeholder="0">
+        </div>
+        <div class="field small" style="flex:0 0 auto;">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" onclick="addItem()">+ Ekle</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Kalem</th><th>Açıklama</th><th class="num">Miktar</th><th>Hesap Detayı</th><th class="num">Tutar</th><th class="col-actions no-print"></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card no-print">
+      <h2>📦 Malzemeler</h2>
+      <p class="card-sub">Panel, kapı, cihaz, kablo vb. malzeme kalemlerini buradan ekleyin.</p>
+      <div class="add-form">
+        <div class="field"><label>Açıklama</label><input type="text" id="malzemeAciklama" placeholder="Örn: 10cm PUR panel"></div>
+        <div class="field small"><label>Miktar</label><input type="number" id="malzemeMiktar" min="0" step="0.01" placeholder="0"></div>
+        <div class="field small"><label>Birim</label><input type="text" id="malzemeBirim" placeholder="adet / m² / m"></div>
+        <div class="field small"><label>Birim Fiyat</label><input type="number" id="malzemeFiyat" min="0" step="0.01" placeholder="0"></div>
+        <div class="field small" style="flex:0 0 auto;"><label>&nbsp;</label><button class="btn btn-primary" onclick="addMaterial()">+ Ekle</button></div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Açıklama</th><th class="num">Miktar</th><th>Birim</th><th class="num">Birim Fiyat</th><th class="num">Tutar</th><th class="col-actions no-print"></th></tr>
+        </thead>
+        <tbody id="materialsBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card no-print">
+      <h2>🚗 Ulaşım ve Konaklama</h2>
+      <p class="card-sub">Yol, konaklama, transfer gibi kalemleri buradan ekleyin — teklif özetinde ayrı bir satır olarak gösterilir.</p>
+      <div class="add-form">
+        <div class="field"><label>Açıklama</label><input type="text" id="ulasimAciklama" placeholder="Örn: Otel konaklaması (2 gece)"></div>
+        <div class="field small"><label>Miktar</label><input type="number" id="ulasimMiktar" min="0" step="0.01" placeholder="0"></div>
+        <div class="field small"><label>Birim</label><input type="text" id="ulasimBirim" placeholder="gün / kişi / km"></div>
+        <div class="field small"><label>Birim Fiyat</label><input type="number" id="ulasimFiyat" min="0" step="0.01" placeholder="0"></div>
+        <div class="field small" style="flex:0 0 auto;"><label>&nbsp;</label><button class="btn btn-primary" onclick="addTravel()">+ Ekle</button></div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Açıklama</th><th class="num">Miktar</th><th>Birim</th><th class="num">Birim Fiyat</th><th class="num">Tutar</th><th class="col-actions no-print"></th></tr>
+        </thead>
+        <tbody id="travelBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card" id="internalSummaryCard">
+      <h2>🧾 Özet <span style="font-size:11.5px;font-weight:500;color:var(--text-muted);">(iç kullanım — kâr payı dahil)</span></h2>
+      <div class="summary" id="summaryBox"></div>
+    </div>
+
+    <div class="card customer-summary" id="customerSummaryCard">
+      <h2>🧾 Müşteri Özeti</h2>
+      <div class="summary" id="customerSummaryBox"></div>
+    </div>
+
+    <div class="actions-bar no-print">
+      <button class="btn btn-ghost" onclick="newQuote()">🆕 Yeni Teklif</button>
+      <button class="btn btn-ghost" onclick="printInternal()">🖨️ İç Kullanım Çıktısı</button>
+      <button class="btn btn-ghost" onclick="printCustomer()">🖨️ Müşteri Çıktısı</button>
+      <button class="btn btn-accent" onclick="saveQuote()">💾 Teklifi Kaydet</button>
+    </div>
+  </section>
+
+  <!-- ============ AYARLAR ============ -->
+  <section id="tab-ayarlar" class="tab-section">
+
+    <div class="card">
+      <h2>🧊 Panel Montajı Fiyatlandırması</h2>
+      <p class="card-sub">
+        Kademeli m² fiyatlandırması kullanılır: alan büyüdükçe m² fiyatı düşer, ayrıca bir taban (minimum) tutar uygulanır.
+        Örnek: <em>250 m²'den büyükse m²'ye X, 120 m²'den büyükse Y, aksi halde Z ₺/m² — sonuç en az taban tutar kadar olur.</em>
+      </p>
+      <div class="field" style="max-width:260px;margin-bottom:16px;">
+        <label>Taban Tutar (minimum ücret)</label>
+        <input type="number" id="set-panel-taban" min="0" step="1">
+      </div>
+      <label style="margin-bottom:8px;">Kademeler (büyükten küçüğe sıralı — en alttaki kademe "eşik" değeri 0 olmalı)</label>
+      <div id="panelTiersBody"></div>
+      <button class="btn btn-ghost btn-sm" onclick="addTierRow()">+ Kademe Ekle</button>
+    </div>
+
+    <div class="card">
+      <h2>🚪 Kapı Montajı Fiyatları</h2>
+      <p class="card-sub">Kapı montajı için saat hesabı değil, doğrudan adet başına sabit fiyat kullanılır.</p>
+      <div class="grid cols-2">
+        <div class="rate-card">
+          <div class="rate-title">Kapı Montajı — Menteşeli</div>
+          <div class="field"><label>Birim Fiyat (adet)</label><input type="number" id="rate_kapiMentesheli_fiyat" min="0" step="1"></div>
+        </div>
+        <div class="rate-card">
+          <div class="rate-title">Kapı Montajı — Sürgülü</div>
+          <div class="field"><label>Birim Fiyat (adet)</label><input type="number" id="rate_kapiSurgulu_fiyat" min="0" step="1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔧 Cihaz &amp; Lamba İşçilik Süreleri</h2>
+      <p class="card-sub">Bu kalemler için: <strong>Tutar = Miktar × Norm Süre (saat) × Saatlik Ücret × Ekip Katsayısı</strong></p>
+      <div class="grid cols-3" id="rateGroups"></div>
+    </div>
+
+    <div class="card">
+      <h2>📐 Genel Çarpanlar</h2>
+      <div class="grid cols-5">
+        <div class="field"><label>Para Birimi</label>
+          <select id="set-currency">
+            <option value="TRY">₺ Türk Lirası</option>
+            <option value="EUR">€ Euro</option>
+            <option value="USD">$ Amerikan Doları</option>
+          </select>
+        </div>
+        <div class="field"><label>Ekip Saat Katsayısı</label><input type="number" id="set-ekip" step="0.01" min="0"></div>
+        <div class="field"><label>Ek Giderler (%)</label><input type="number" id="set-ekgider" step="0.1" min="0"></div>
+        <div class="field"><label>Kâr Payı (%)</label><input type="number" id="set-karpayi" step="0.1" min="0"></div>
+        <div class="field"><label>KDV (%)</label><input type="number" id="set-kdv" step="0.1" min="0"></div>
+      </div>
+      <div class="checkbox-row" style="margin-top:12px;">
+        <input type="checkbox" id="set-kdvdahil">
+        <label style="margin:0;">Teklif toplamına KDV eklensin</label>
+      </div>
+      <div class="settings-footer">
+        <button class="btn btn-ghost" onclick="resetSettings()">↺ Varsayılana Sıfırla</button>
+        <button class="btn btn-accent" onclick="saveSettings()">💾 Ayarları Kaydet</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ KAYITLI TEKLİFLER ============ -->
+  <section id="tab-kayitlar" class="tab-section">
+    <div class="card">
+      <h2>🗂️ Kayıtlı Teklifler</h2>
+      <p class="card-sub">Kaydedilen teklifler bu cihazda saklanır. Bilgisayar ile telefon arasında taşımak için yedek alıp diğerine yükleyin (birim fiyatlar dahil).</p>
+      <div class="backup-row no-print">
+        <button class="btn" type="button" onclick="cqExportBackup()">⬇ Yedek al</button>
+        <button class="btn" type="button" onclick="document.getElementById('cqImportFile').click()">⬆ Yedekten yükle</button>
+        <input type="file" id="cqImportFile" accept=".json,application/json" style="display:none" onchange="cqImportBackup(this)">
+      </div>
+      <div class="table-scroll"><table>
+        <thead>
+          <tr><th>Proje Adı</th><th>Müşteri</th><th>Tarih</th><th class="num">Genel Toplam</th><th>Kayıt</th><th class="col-actions"></th></tr>
+        </thead>
+        <tbody id="projectsBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ VERİ MODELİ ============ */
+const RATE_KEYS = [
+  {key:'cihazMontajSplit', title:'Cihaz Montajı — Split', unit:'adet'},
+  {key:'cihazMontajMerkezi', title:'Cihaz Montajı — Merkezi', unit:'adet'},
+  {key:'cihazDevreyeSplit', title:'Cihaz Devreye Alma — Split', unit:'adet'},
+  {key:'cihazDevreyeMerkezi', title:'Cihaz Devreye Alma — Merkezi', unit:'adet'},
+  {key:'cihazServisSplit', title:'Cihaz Servis — Split', unit:'adet'},
+  {key:'cihazServisMerkezi', title:'Cihaz Servis — Merkezi', unit:'adet'},
+  {key:'cihazBakimSplit', title:'Cihaz Bakım — Split', unit:'adet'},
+  {key:'cihazBakimMerkezi', title:'Cihaz Bakım — Merkezi', unit:'adet'},
+  {key:'cihazDemontaj', title:'Cihaz Demontaj', unit:'adet'},
+  {key:'lamba', title:'Lamba Montajı', unit:'adet'}
+];
+
+const ITEM_CATEGORIES = [
+  {value:'panel', label:'Panel Montajı', unit:'m²', calcType:'panel'},
+  {value:'kapi', label:'Kapı Montajı', unit:'adet', calcType:'kapi', subs:[{value:'Mentesheli',label:'Menteşeli'},{value:'Surgulu',label:'Sürgülü'}]},
+  {value:'cihazMontaj', label:'Cihaz Montajı', unit:'adet', calcType:'hourly', subs:[{value:'Split',label:'Split'},{value:'Merkezi',label:'Merkezi'}]},
+  {value:'cihazDevreye', label:'Cihaz Devreye Alma', unit:'adet', calcType:'hourly', subs:[{value:'Split',label:'Split'},{value:'Merkezi',label:'Merkezi'}]},
+  {value:'cihazServis', label:'Cihaz Servis', unit:'adet', calcType:'hourly', subs:[{value:'Split',label:'Split'},{value:'Merkezi',label:'Merkezi'}]},
+  {value:'cihazBakim', label:'Cihaz Bakım', unit:'adet', calcType:'hourly', subs:[{value:'Split',label:'Split'},{value:'Merkezi',label:'Merkezi'}]},
+  {value:'cihazDemontaj', label:'Cihaz Demontaj', unit:'adet', calcType:'hourly'},
+  {value:'lamba', label:'Lamba Montajı', unit:'adet', calcType:'hourly'}
+];
+
+const DEFAULT_SETTINGS = {
+  panel:{ taban:500, tiers:[{esik:250,fiyat:14},{esik:120,fiyat:15},{esik:0,fiyat:16}] },
+  kapiMentesheli:{fiyat:3500},
+  kapiSurgulu:{fiyat:4500},
+  cihazMontajSplit:{sure:4, ucret:500},
+  cihazMontajMerkezi:{sure:8, ucret:500},
+  cihazDevreyeSplit:{sure:1.5, ucret:500},
+  cihazDevreyeMerkezi:{sure:3, ucret:500},
+  cihazServisSplit:{sure:1.5, ucret:500},
+  cihazServisMerkezi:{sure:2.5, ucret:500},
+  cihazBakimSplit:{sure:1, ucret:500},
+  cihazBakimMerkezi:{sure:2, ucret:500},
+  cihazDemontaj:{sure:2, ucret:450},
+  lamba:{sure:0.5, ucret:400},
+  ekipKatsayisi:1,
+  ekGiderYuzde:10,
+  karPayiYuzde:20,
+  kdvYuzde:20,
+  kdvDahil:true,
+  currency:'TRY'
+};
+
+const SETTINGS_KEY = 'coldquote_settings_v2';
+const PROJECTS_KEY = 'coldquote_projects_v2';
+const CURRENCY_MAP = {
+  TRY:{locale:'tr-TR', code:'TRY'},
+  EUR:{locale:'de-DE', code:'EUR'},
+  USD:{locale:'en-US', code:'USD'}
+};
+
+let settings = loadSettings();
+let items = [];
+let materials = [];
+let travel = [];
+let currentProjectId = null;
+let panelTiersDraft = [];
+
+/* ============ STORAGE ============ */
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if(!raw) return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    return {...JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), ...JSON.parse(raw)};
+  }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_SETTINGS)); }
+}
+function persistSettings(){
+  try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){ toast('Ayarlar kaydedilemedi (tarayıcı depolaması erişilemez).'); }
+}
+function loadProjects(){
+  try{
+    const raw = localStorage.getItem(PROJECTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function persistProjects(list){
+  try{ localStorage.setItem(PROJECTS_KEY, JSON.stringify(list)); }catch(e){ toast('Teklif kaydedilemedi (tarayıcı depolaması erişilemez).'); }
+}
+
+/* ============ TAB YÖNETİMİ ============ */
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='kayitlar') renderProjectsList();
+}
+
+/* ============ AYARLAR SAYFASI ============ */
+function renderSettingsPage(){
+  document.getElementById('set-panel-taban').value = settings.panel.taban;
+  panelTiersDraft = JSON.parse(JSON.stringify(settings.panel.tiers));
+  renderPanelTierRows();
+
+  document.getElementById('rate_kapiMentesheli_fiyat').value = settings.kapiMentesheli.fiyat;
+  document.getElementById('rate_kapiSurgulu_fiyat').value = settings.kapiSurgulu.fiyat;
+
+  const wrap = document.getElementById('rateGroups');
+  wrap.innerHTML = RATE_KEYS.map(g => `
+    <div class="rate-card">
+      <div class="rate-title">${g.title} <span style="color:#5b7186;font-weight:500;">(${g.unit})</span></div>
+      <div class="rate-row">
+        <div><label>Norm Süre (saat/${g.unit})</label><input type="number" step="0.01" min="0" id="rate_${g.key}_sure" value="${settings[g.key].sure}"></div>
+        <div><label>Saatlik Ücret</label><input type="number" step="1" min="0" id="rate_${g.key}_ucret" value="${settings[g.key].ucret}"></div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('set-currency').value = settings.currency;
+  document.getElementById('set-ekip').value = settings.ekipKatsayisi;
+  document.getElementById('set-ekgider').value = settings.ekGiderYuzde;
+  document.getElementById('set-karpayi').value = settings.karPayiYuzde;
+  document.getElementById('set-kdv').value = settings.kdvYuzde;
+  document.getElementById('set-kdvdahil').checked = !!settings.kdvDahil;
+}
+
+function renderPanelTierRows(){
+  const body = document.getElementById('panelTiersBody');
+  body.innerHTML = panelTiersDraft.map((t,idx)=>`
+    <div class="tier-row">
+      <div class="field"><label>Eşik (m² üstü)</label><input type="number" class="tier-esik" step="0.1" value="${t.esik}"></div>
+      <div class="field"><label>m² Fiyatı</label><input type="number" class="tier-fiyat" step="0.01" value="${t.fiyat}"></div>
+      <button class="btn btn-danger btn-sm" onclick="removeTierRow(${idx})">✕</button>
+    </div>
+  `).join('');
+}
+function syncPanelTiersFromDOM(){
+  const rows = document.querySelectorAll('#panelTiersBody .tier-row');
+  panelTiersDraft = Array.from(rows).map(r=>({
+    esik: parseFloat(r.querySelector('.tier-esik').value) || 0,
+    fiyat: parseFloat(r.querySelector('.tier-fiyat').value) || 0
+  }));
+}
+function addTierRow(){
+  syncPanelTiersFromDOM();
+  panelTiersDraft.push({esik:0, fiyat:0});
+  renderPanelTierRows();
+}
+function removeTierRow(idx){
+  syncPanelTiersFromDOM();
+  panelTiersDraft.splice(idx,1);
+  renderPanelTierRows();
+}
+
+function saveSettings(){
+  syncPanelTiersFromDOM();
+  settings.panel = {
+    taban: parseFloat(document.getElementById('set-panel-taban').value) || 0,
+    tiers: panelTiersDraft.map(t=>({esik:t.esik, fiyat:t.fiyat}))
+  };
+  settings.kapiMentesheli = {fiyat: parseFloat(document.getElementById('rate_kapiMentesheli_fiyat').value) || 0};
+  settings.kapiSurgulu = {fiyat: parseFloat(document.getElementById('rate_kapiSurgulu_fiyat').value) || 0};
+
+  RATE_KEYS.forEach(g=>{
+    const sure = parseFloat(document.getElementById(`rate_${g.key}_sure`).value) || 0;
+    const ucret = parseFloat(document.getElementById(`rate_${g.key}_ucret`).value) || 0;
+    settings[g.key] = {sure, ucret};
+  });
+
+  settings.currency = document.getElementById('set-currency').value;
+  settings.ekipKatsayisi = parseFloat(document.getElementById('set-ekip').value) || 1;
+  settings.ekGiderYuzde = parseFloat(document.getElementById('set-ekgider').value) || 0;
+  settings.karPayiYuzde = parseFloat(document.getElementById('set-karpayi').value) || 0;
+  settings.kdvYuzde = parseFloat(document.getElementById('set-kdv').value) || 0;
+  settings.kdvDahil = document.getElementById('set-kdvdahil').checked;
+
+  persistSettings();
+  recalcSummary();
+  toast('Ayarlar kaydedildi.');
+}
+function resetSettings(){
+  if(!confirm('Tüm birim fiyatlar ve çarpanlar varsayılan örnek değerlere sıfırlanacak. Emin misiniz?')) return;
+  settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  persistSettings();
+  renderSettingsPage();
+  toast('Ayarlar varsayılana sıfırlandı.');
+}
+
+/* ============ PANEL HESABI ============ */
+function calcPanelTutar(m2){
+  const p = settings.panel;
+  const tiers = [...p.tiers].sort((a,b)=>b.esik-a.esik);
+  let rate = tiers.length ? tiers[tiers.length-1].fiyat : 0;
+  for(const t of tiers){ if(m2 > t.esik){ rate = t.fiyat; break; } }
+  const raw = m2 * rate;
+  const tutar = Math.max(p.taban || 0, raw);
+  const detay = `${formatCurrency(rate)}/m² · taban ${formatCurrency(p.taban)}`;
+  return {tutar, detay, rate};
+}
+
+/* ============ İŞÇİLİK KALEMLERİ ============ */
+function populateCategorySelect(){
+  const sel = document.getElementById('itemCategory');
+  sel.innerHTML = ITEM_CATEGORIES.map(c=>`<option value="${c.value}">${c.label}</option>`).join('');
+  onCategoryChange();
+}
+function onCategoryChange(){
+  const cat = ITEM_CATEGORIES.find(c=>c.value===document.getElementById('itemCategory').value);
+  const subWrap = document.getElementById('itemSubWrap');
+  const subSel = document.getElementById('itemSub');
+  if(cat.subs){
+    subWrap.style.display='';
+    subSel.innerHTML = cat.subs.map(s=>`<option value="${s.value}">${s.label}</option>`).join('');
+  }else{
+    subWrap.style.display='none';
+    subSel.innerHTML='';
+  }
+  document.getElementById('itemZeminWrap').style.display = (cat.calcType==='panel') ? '' : 'none';
+  document.getElementById('itemUnitLabel').textContent = cat.unit;
+}
+function addItem(){
+  const catValue = document.getElementById('itemCategory').value;
+  const cat = ITEM_CATEGORIES.find(c=>c.value===catValue);
+  const subValue = cat.subs ? document.getElementById('itemSub').value : '';
+  const subLabel = cat.subs ? cat.subs.find(s=>s.value===subValue).label : '';
+  const miktar = parseFloat(document.getElementById('itemMiktar').value);
+  const aciklama = document.getElementById('itemAciklama').value.trim();
+  if(!miktar || miktar<=0){ toast('Lütfen geçerli bir miktar girin.'); return; }
+
+  let tutar = 0, detay = '', kategoriLabel = cat.label + (subLabel ? ' — '+subLabel : '');
+
+  if(cat.calcType==='panel'){
+    const zemin = document.getElementById('itemZemin').value;
+    const r = calcPanelTutar(miktar);
+    tutar = r.tutar; detay = r.detay;
+    kategoriLabel += zemin==='Var' ? ' (Zemin Panelli)' : ' (Zeminsiz)';
+  } else if(cat.calcType==='kapi'){
+    const rateKey = 'kapi'+subValue;
+    const fiyat = (settings[rateKey] && settings[rateKey].fiyat) || 0;
+    tutar = miktar * fiyat;
+    detay = `${formatCurrency(fiyat)} / adet (sabit)`;
+  } else {
+    const rateKey = catValue + subValue;
+    const rate = settings[rateKey];
+    if(!rate){ toast('Bu kalem için birim fiyat bulunamadı.'); return; }
+    const ekip = settings.ekipKatsayisi || 1;
+    tutar = miktar * rate.sure * rate.ucret * ekip;
+    detay = `${rate.sure} sa × ${formatCurrency(rate.ucret)} × Ekip ${ekip}`;
+  }
+
+  items.push({id:Date.now()+Math.random(), kategori:kategoriLabel, aciklama, miktar, birim:cat.unit, detay, tutar});
+  document.getElementById('itemAciklama').value='';
+  document.getElementById('itemMiktar').value='';
+  renderItems(); recalcSummary();
+}
+function removeItem(id){
+  items = items.filter(i=>i.id!==id);
+  renderItems(); recalcSummary();
+}
+function renderItems(){
+  const body = document.getElementById('itemsBody');
+  if(items.length===0){
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">Henüz işçilik kalemi eklenmedi.</td></tr>`;
+    return;
+  }
+  body.innerHTML = items.map(i=>`
+    <tr>
+      <td><span class="tag">${i.kategori}</span></td>
+      <td>${i.aciklama||'—'}</td>
+      <td class="num">${i.miktar} ${i.birim}</td>
+      <td>${i.detay}</td>
+      <td class="num">${formatCurrency(i.tutar)}</td>
+      <td class="col-actions no-print"><button class="btn btn-danger btn-sm" onclick="removeItem(${i.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ============ MALZEMELER ============ */
+function addMaterial(){
+  const aciklama = document.getElementById('malzemeAciklama').value.trim();
+  const miktar = parseFloat(document.getElementById('malzemeMiktar').value);
+  const birim = document.getElementById('malzemeBirim').value.trim() || 'adet';
+  const fiyat = parseFloat(document.getElementById('malzemeFiyat').value);
+  if(!aciklama){ toast('Lütfen malzeme açıklaması girin.'); return; }
+  if(!miktar || miktar<=0){ toast('Lütfen geçerli bir miktar girin.'); return; }
+  if(isNaN(fiyat) || fiyat<0){ toast('Lütfen geçerli bir birim fiyat girin.'); return; }
+  materials.push({id:Date.now()+Math.random(), aciklama, miktar, birim, fiyat, tutar: miktar*fiyat});
+  document.getElementById('malzemeAciklama').value='';
+  document.getElementById('malzemeMiktar').value='';
+  document.getElementById('malzemeBirim').value='';
+  document.getElementById('malzemeFiyat').value='';
+  renderMaterials(); recalcSummary();
+}
+function removeMaterial(id){
+  materials = materials.filter(m=>m.id!==id);
+  renderMaterials(); recalcSummary();
+}
+function renderMaterials(){
+  const body = document.getElementById('materialsBody');
+  if(materials.length===0){
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">Henüz malzeme eklenmedi.</td></tr>`;
+    return;
+  }
+  body.innerHTML = materials.map(m=>`
+    <tr>
+      <td>${m.aciklama}</td>
+      <td class="num">${m.miktar}</td>
+      <td>${m.birim}</td>
+      <td class="num">${formatCurrency(m.fiyat)}</td>
+      <td class="num">${formatCurrency(m.tutar)}</td>
+      <td class="col-actions no-print"><button class="btn btn-danger btn-sm" onclick="removeMaterial(${m.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ============ ULAŞIM VE KONAKLAMA ============ */
+function addTravel(){
+  const aciklama = document.getElementById('ulasimAciklama').value.trim();
+  const miktar = parseFloat(document.getElementById('ulasimMiktar').value);
+  const birim = document.getElementById('ulasimBirim').value.trim() || 'adet';
+  const fiyat = parseFloat(document.getElementById('ulasimFiyat').value);
+  if(!aciklama){ toast('Lütfen açıklama girin.'); return; }
+  if(!miktar || miktar<=0){ toast('Lütfen geçerli bir miktar girin.'); return; }
+  if(isNaN(fiyat) || fiyat<0){ toast('Lütfen geçerli bir birim fiyat girin.'); return; }
+  travel.push({id:Date.now()+Math.random(), aciklama, miktar, birim, fiyat, tutar: miktar*fiyat});
+  document.getElementById('ulasimAciklama').value='';
+  document.getElementById('ulasimMiktar').value='';
+  document.getElementById('ulasimBirim').value='';
+  document.getElementById('ulasimFiyat').value='';
+  renderTravel(); recalcSummary();
+}
+function removeTravel(id){
+  travel = travel.filter(t=>t.id!==id);
+  renderTravel(); recalcSummary();
+}
+function renderTravel(){
+  const body = document.getElementById('travelBody');
+  if(travel.length===0){
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">Henüz ulaşım/konaklama kalemi eklenmedi.</td></tr>`;
+    return;
+  }
+  body.innerHTML = travel.map(t=>`
+    <tr>
+      <td>${t.aciklama}</td>
+      <td class="num">${t.miktar}</td>
+      <td>${t.birim}</td>
+      <td class="num">${formatCurrency(t.fiyat)}</td>
+      <td class="num">${formatCurrency(t.tutar)}</td>
+      <td class="col-actions no-print"><button class="btn btn-danger btn-sm" onclick="removeTravel(${t.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+/* ============ ÖZET / HESAPLAMA ============ */
+function calcTotals(){
+  const laborTotal = items.reduce((s,i)=>s+i.tutar,0);
+  const materialTotal = materials.reduce((s,m)=>s+m.tutar,0);
+  const travelTotal = travel.reduce((s,t)=>s+t.tutar,0);
+  const subtotal = laborTotal + materialTotal + travelTotal;
+  const ekGiderTutar = subtotal * (settings.ekGiderYuzde/100);
+  const araToplam = subtotal + ekGiderTutar;
+  const karPayiTutar = araToplam * (settings.karPayiYuzde/100);
+  const toplamKdvHaric = araToplam + karPayiTutar;
+  const kdvTutar = settings.kdvDahil ? toplamKdvHaric * (settings.kdvYuzde/100) : 0;
+  const genelToplam = toplamKdvHaric + kdvTutar;
+  return {laborTotal, materialTotal, travelTotal, subtotal, ekGiderTutar, araToplam, karPayiTutar, toplamKdvHaric, kdvTutar, genelToplam};
+}
+function recalcSummary(){
+  const t = calcTotals();
+  document.getElementById('summaryBox').innerHTML = `
+    <div class="summary-row"><span>İşçilik Toplamı</span><span>${formatCurrency(t.laborTotal)}</span></div>
+    <div class="summary-row"><span>Malzeme Toplamı</span><span>${formatCurrency(t.materialTotal)}</span></div>
+    <div class="summary-row"><span>Ulaşım ve Konaklama</span><span>${formatCurrency(t.travelTotal)}</span></div>
+    <div class="summary-row"><span>Ara Toplam</span><span>${formatCurrency(t.subtotal)}</span></div>
+    <div class="summary-row"><span>Ek Giderler (%${settings.ekGiderYuzde})</span><span>${formatCurrency(t.ekGiderTutar)}</span></div>
+    <div class="summary-row"><span>Kâr Payı (%${settings.karPayiYuzde})</span><span>${formatCurrency(t.karPayiTutar)}</span></div>
+    ${settings.kdvDahil ? `<div class="summary-row"><span>KDV (%${settings.kdvYuzde})</span><span>${formatCurrency(t.kdvTutar)}</span></div>` : ''}
+    <div class="summary-row total"><span>GENEL TOPLAM</span><span>${formatCurrency(t.genelToplam)}</span></div>
+  `;
+}
+function buildCustomerSummary(){
+  const t = calcTotals();
+  document.getElementById('customerSummaryBox').innerHTML = `
+    <div class="summary-row"><span>İşçilik Toplamı</span><span>${formatCurrency(t.laborTotal)}</span></div>
+    <div class="summary-row"><span>Malzeme Toplamı</span><span>${formatCurrency(t.materialTotal)}</span></div>
+    <div class="summary-row"><span>Ulaşım ve Konaklama</span><span>${formatCurrency(t.travelTotal)}</span></div>
+    <div class="summary-row"><span>Ek Giderler</span><span>${formatCurrency(t.ekGiderTutar)}</span></div>
+    <div class="summary-row"><span>Ara Toplam</span><span>${formatCurrency(t.araToplam)}</span></div>
+    ${settings.kdvDahil ? `<div class="summary-row"><span>KDV (%${settings.kdvYuzde})</span><span>${formatCurrency(t.kdvTutar)}</span></div>` : ''}
+    <div class="summary-row total"><span>GENEL TOPLAM</span><span>${formatCurrency(t.genelToplam)}</span></div>
+  `;
+}
+function formatCurrency(n){
+  const c = CURRENCY_MAP[settings.currency] || CURRENCY_MAP.TRY;
+  return new Intl.NumberFormat(c.locale,{style:'currency',currency:c.code,maximumFractionDigits:2}).format(n||0);
+}
+
+/* ============ TEKLİF KAYDET / YÜKLE / SİL ============ */
+function saveQuote(){
+  const projeAdi = document.getElementById('projeAdi').value.trim();
+  if(!projeAdi){ toast('Lütfen proje adı girin.'); document.getElementById('projeAdi').focus(); return; }
+  const t = calcTotals();
+  const project = {
+    id: currentProjectId || (Date.now()+Math.random()),
+    projeAdi,
+    musteriAdi: document.getElementById('musteriAdi').value.trim(),
+    tarih: document.getElementById('tarih').value,
+    not: document.getElementById('projeNot').value.trim(),
+    items: JSON.parse(JSON.stringify(items)),
+    materials: JSON.parse(JSON.stringify(materials)),
+    travel: JSON.parse(JSON.stringify(travel)),
+    currency: settings.currency,
+    totals: t,
+    savedAt: new Date().toISOString()
+  };
+  let list = loadProjects();
+  const idx = list.findIndex(p=>p.id===project.id);
+  if(idx>=0) list[idx]=project; else list.push(project);
+  persistProjects(list);
+  currentProjectId = project.id;
+  toast('Teklif kaydedildi: '+projeAdi);
+}
+function renderProjectsList(){
+  const list = loadProjects().sort((a,b)=> new Date(b.savedAt)-new Date(a.savedAt));
+  const body = document.getElementById('projectsBody');
+  if(list.length===0){
+    body.innerHTML = `<tr class="empty-row"><td colspan="6">Henüz kayıtlı teklif yok.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(p=>`
+    <tr>
+      <td>${p.projeAdi}</td>
+      <td>${p.musteriAdi||'—'}</td>
+      <td>${p.tarih||'—'}</td>
+      <td class="num">${formatCurrency(p.totals.genelToplam)}</td>
+      <td>${new Date(p.savedAt).toLocaleString('tr-TR')}</td>
+      <td class="col-actions" style="white-space:nowrap;">
+        <button class="btn btn-ghost btn-sm" onclick="loadProject('${p.id}')" title="Yükle / Düzenle">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="duplicateProject('${p.id}')" title="Kopyala">📄</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProject('${p.id}')" title="Sil">✕</button>
+      </td>
+    </tr>
+  `).join('');
+}
+function loadProject(id){
+  const list = loadProjects();
+  const p = list.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  currentProjectId = p.id;
+  document.getElementById('projeAdi').value = p.projeAdi;
+  document.getElementById('musteriAdi').value = p.musteriAdi;
+  document.getElementById('tarih').value = p.tarih;
+  document.getElementById('projeNot').value = p.not;
+  items = JSON.parse(JSON.stringify(p.items||[]));
+  materials = JSON.parse(JSON.stringify(p.materials||[]));
+  travel = JSON.parse(JSON.stringify(p.travel||[]));
+  renderItems(); renderMaterials(); renderTravel(); recalcSummary();
+  switchTab('teklif');
+  toast('Teklif yüklendi: '+p.projeAdi);
+}
+function duplicateProject(id){
+  loadProject(id);
+  currentProjectId = null;
+  document.getElementById('projeAdi').value += ' (Kopya)';
+  toast('Teklif kopyalandı — düzenleyip yeni olarak kaydedebilirsiniz.');
+}
+function deleteProject(id){
+  if(!confirm('Bu teklifi silmek istediğinize emin misiniz?')) return;
+  let list = loadProjects().filter(p=>String(p.id)!==String(id));
+  persistProjects(list);
+  renderProjectsList();
+  toast('Teklif silindi.');
+}
+function newQuote(){
+  if((items.length || materials.length || travel.length || document.getElementById('projeAdi').value.trim()) && !confirm('Mevcut teklif temizlenecek. Devam edilsin mi?')) return;
+  currentProjectId = null;
+  document.getElementById('projeAdi').value='';
+  document.getElementById('musteriAdi').value='';
+  document.getElementById('tarih').valueAsDate = new Date();
+  document.getElementById('projeNot').value='';
+  items = []; materials = []; travel = [];
+  renderItems(); renderMaterials(); renderTravel(); recalcSummary();
+}
+function populatePrintHeader(){
+  document.getElementById('printProjeAdi').textContent = document.getElementById('projeAdi').value || '(İsimsiz Teklif)';
+  document.getElementById('printMusteri').textContent = document.getElementById('musteriAdi').value || '-';
+  document.getElementById('printTarih').textContent = document.getElementById('tarih').value || '-';
+  document.getElementById('printNot').textContent = document.getElementById('projeNot').value || '';
+}
+function printInternal(){
+  document.body.classList.remove('print-customer');
+  populatePrintHeader();
+  window.print();
+}
+function printCustomer(){
+  document.body.classList.add('print-customer');
+  populatePrintHeader();
+  buildCustomerSummary();
+  window.print();
+}
+window.onafterprint = function(){ document.body.classList.remove('print-customer'); };
+
+/* ============ TOAST ============ */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
+/* ============ BAŞLANGIÇ ============ */
+document.getElementById('tarih').valueAsDate = new Date();
+populateCategorySelect();
+renderSettingsPage();
+renderItems();
+renderMaterials();
+renderTravel();
+recalcSummary();
+</script>
+<style>
+#iosHint{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:999;display:none;align-items:center;gap:10px;background:#0b4f6c;color:#fff;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.4;box-shadow:0 6px 24px #0004}
+#iosHint.on{display:flex}#iosHint b{color:#9be7ff}
+#iosHint button{margin-left:auto;background:none;border:0;color:#fff;font-size:20px;line-height:1;padding:2px 6px}
+</style>
+<script>
+/* === Yedekleme: ayarlar + kayıtlı teklifler (bilgisayar <-> telefon) === */
+function cqExportBackup(){
+  var data={app:'ColdQuotePro',version:2,exportedAt:new Date().toISOString(),
+    settings:JSON.parse(localStorage.getItem(SETTINGS_KEY)||'null')||settings,
+    projects:loadProjects()};
+  var name='coldquote-yedek-'+new Date().toISOString().slice(0,10)+'.json';
+  var blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  var file;try{file=new File([blob],name,{type:'application/json'});}catch(e){}
+  if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:name}).catch(function(e){if(e&&e.name!=='AbortError')cqDownload(blob,name);});
+  }else cqDownload(blob,name);
+}
+function cqDownload(blob,name){
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;
+  document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},2000);
+  toast('Yedek indirildi: '+name);
+}
+function cqImportBackup(inp){
+  var f=inp.files&&inp.files[0]; if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var d=JSON.parse(r.result);
+      if(!d||d.app!=='ColdQuotePro'||!Array.isArray(d.projects))throw 0;
+      if(!confirm('Yedek yüklenecek:\n• Birim fiyat ayarları yedektekiyle değiştirilecek\n• '+d.projects.length+' teklif mevcut listeyle birleştirilecek (aynı teklifin yenisi kalır)\n\nDevam edilsin mi?'))return;
+      if(d.settings){settings={...JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),...d.settings};persistSettings();}
+      var list=loadProjects();
+      d.projects.forEach(function(p){
+        var i=list.findIndex(function(x){return x.id===p.id;});
+        if(i<0)list.push(p);
+        else if(new Date(p.savedAt)>new Date(list[i].savedAt))list[i]=p;
+      });
+      persistProjects(list);
+      try{renderSettingsPage();}catch(e){}
+      try{recalcSummary();}catch(e){}
+      renderProjectsList();
+      toast('Yedek yüklendi: '+d.projects.length+' teklif');
+    }catch(e){toast('Bu dosya ColdQuote yedeği değil.');}
+    inp.value='';
+  };
+  r.readAsText(f);
+}
+/* === iPhone / ana ekran uygulaması eklentisi === */
+(function(){
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  var standalone=navigator.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+  function sg(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function ss(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+  if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){
+    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})});
+  }
+  if(!ios||standalone||sg('iosHintOff')==='1')return;
+  var d=document.createElement('div');d.id='iosHint';
+  d.innerHTML='<span>Uygulama olarak kurmak için: <b>Paylaş</b> → <b>Ana Ekrana Ekle</b></span><button aria-label="Kapat">×</button>';
+  document.body.appendChild(d);
+  d.querySelector('button').onclick=function(){d.classList.remove('on');ss('iosHintOff','1')};
+  setTimeout(function(){d.classList.add('on')},1500);
+})();
+</script>
+</body>
+</html>
